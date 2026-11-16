@@ -84,8 +84,9 @@ def main():
         cfg["strategy"] = args.strategy
     tickers = [t.upper() for t in args.tickers]
     if args.watchlist:
-        wl = (ROOT / "watchlist.txt").read_text().split()
-        tickers += [t.upper() for t in wl if not t.startswith("#")]
+        for line in (ROOT / "watchlist.txt").read_text().splitlines():
+            line = line.split("#", 1)[0]          # drop comments
+            tickers += [t.strip(",").upper() for t in line.split() if t.strip(",")]
     if not tickers:
         ap.error("give tickers or --watchlist")
 
