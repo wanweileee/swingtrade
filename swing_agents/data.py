@@ -122,8 +122,15 @@ def _from_extra_yaml(ticker: str, key: str):
     return (yaml.safe_load(p.read_text()) or {}).get(key)
 
 
-def last_trading_day(today: date | None = None) -> str:
-    d = today or date.today()
+def last_trading_day(now: datetime | None = None) -> str:
+    """Date of the last COMPLETED US session (New York time). Before 4:15pm ET on
+    a weekday, today's candle is still forming, so use the previous weekday.
+    (US holidays aren't handled; the data simply ends on the last real bar.)"""
+    from zoneinfo import ZoneInfo
+    ny = (now or datetime.now(ZoneInfo("UTC"))).astimezone(ZoneInfo("America/New_York"))
+    d = ny.date()
+    if d.weekday() < 5 and (ny.hour, ny.minute) < (16, 15):
+        d -= timedelta(days=1)
     while d.weekday() >= 5:
         d -= timedelta(days=1)
     return d.isoformat()
