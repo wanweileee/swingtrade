@@ -1,0 +1,63 @@
+# Runs the flow on GitHub's servers and publishes results to the phone app (docs/).
+#  - Automatically every Saturday 12:36 SGT (04:36 UTC), after Friday's US close.
+#  - Manually: GitHub app → this repo → Actions → "Weekly swing run" → Run workflow.
+name: Weekly swing run
+
+on:
+  schedule:
+    - cron: "36 4 * * 6"
+  workflow_dispatch:
+    inputs:
+      tickers:
+        description: "Tickers separated by spaces (blank = watchlist.txt)"
+        required: false
+        default: ""
+      rules_only:
+        description: "Rules only (skip AI steps, no cost)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swing-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Run the flow
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ARGS="${{ github.event.inputs.tickers }}"
+          [ -z "$ARGS" ] && ARGS="--watchlist"
+          [ "${{ github.event.inputs.rules_only }}" = "true" ] && ARGS="$ARGS --rules-only"
+          python run.py $ARGS
+
+      - name: Export for the phone app
+        run: python export_web.py
+
+      - name: Publish
+        run: |
+          git config user.name  "swing-bot"
+          git config user.email "swing-bot@users.noreply.github.com"
+          git add docs/data
+          git diff --cached --quiet && echo "nothing new" && exit 0
+          git commit -m "Run $(date -u +%Y-%m-%d)"
+          git pull --rebase
+          git push
