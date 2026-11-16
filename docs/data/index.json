@@ -1,1 +1,61 @@
-[]
+[
+ {
+  "id": "20261116-163203",
+  "as_of": "2026-11-13",
+  "started": "2026-11-16T16:32:11",
+  "strategy": "Pullback Swing v2",
+  "model": "rules only",
+  "tickers": [
+   {
+    "ticker": "AAPL",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "AMZN",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "COST",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "JPM",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "MA",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "MSFT",
+    "action": "BUY",
+    "checks": "6/6"
+   },
+   {
+    "ticker": "TMO",
+    "action": "WATCH",
+    "checks": "5/6"
+   },
+   {
+    "ticker": "UNH",
+    "action": "WATCH",
+    "checks": "5/6"
+   },
+   {
+    "ticker": "V",
+    "action": "SKIP",
+    "checks": "4/6"
+   },
+   {
+    "ticker": "XOM",
+    "action": "BUY",
+    "checks": "6/6"
+   }
+  ]
+ }
+]
