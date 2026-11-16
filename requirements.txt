@@ -1,0 +1,11 @@
+langgraph>=0.6
+langchain>=1.0
+langchain-anthropic
+langchain-openai
+pandas
+numpy
+yfinance
+pyyaml
+python-dotenv
+rich
+streamlit

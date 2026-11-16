@@ -1,0 +1,11 @@
+# One ticker per line. Lines starting with # are ignored.
+MSFT
+XOM
+JPM
+UNH
+TMO
+AAPL
+AMZN
+V
+MA
+COST

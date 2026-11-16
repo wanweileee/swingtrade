@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swing Desk</title>
+<meta name="theme-color" content="#0f1720" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Swing Desk">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+/* ── Theme ─────────────────────────────────────────────── */
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#15191e; --muted:#5f6b7a; --line:#e3e7ec; --soft:#eef1f5;
+  --buy:#14804a; --buy-bg:#e2f4ea; --watch:#a35c00; --watch-bg:#fdf0dc; --skip:#5f6b7a; --skip-bg:#eceff3;
+  --err:#b42318; --err-bg:#fde7e5; --ai:#3654c7; --ai-bg:#e6ebfb; --code:#1f7a52; --code-bg:#e3f3ea;
+  --accent:#3654c7; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1720; --card:#17212c; --ink:#e8edf2; --muted:#93a1b1; --line:#253240; --soft:#1e2a37;
+    --buy:#4cc38a; --buy-bg:#163a2a; --watch:#f0b45a; --watch-bg:#3a2c14; --skip:#93a1b1; --skip-bg:#232f3c;
+    --err:#ff8a7a; --err-bg:#3d1d1a; --ai:#9db1ff; --ai-bg:#1f2a4d; --code:#6fd3a2; --code-bg:#17352a;
+    --accent:#9db1ff;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+.wrap{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 8px) 14px calc(env(safe-area-inset-bottom) + 28px)}
+
+/* ── Top bar ───────────────────────────────────────────── */
+.top{display:flex;align-items:center;gap:10px;padding:8px 0 12px}
+.top h1{font-size:22px;margin:0;flex:1;letter-spacing:-.01em}
+.iconbtn{border:0;background:var(--card);color:var(--ink);width:38px;height:38px;border-radius:50%;
+  font-size:18px;display:grid;place-items:center;box-shadow:0 0 0 1px var(--line)}
+.back{font-size:15px;width:auto;padding:0 12px;border-radius:19px}
+.sub{color:var(--muted);font-size:13px;margin:-6px 0 12px}
+
+/* ── Cards ─────────────────────────────────────────────── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:0 0 0 1px var(--line);padding:14px;margin:0 0 10px}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 2px 8px}
+.badge{font-size:12px;font-weight:700;letter-spacing:.04em;padding:4px 9px;border-radius:999px}
+.BUY{color:var(--buy);background:var(--buy-bg)} .WATCH{color:var(--watch);background:var(--watch-bg)}
+.SKIP{color:var(--skip);background:var(--skip-bg)} .ERROR,.INCOMPLETE{color:var(--err);background:var(--err-bg)}
+.chip{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.chip.ok{color:var(--buy);background:var(--buy-bg)} .chip.bad{color:var(--err);background:var(--err-bg)}
+.tick{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.tap{display:block;text-decoration:none;color:inherit}
+.tap:active{opacity:.7}
+.tap.row{display:flex}
+.back{display:flex;align-items:center;height:38px;text-decoration:none;color:var(--ink);font-weight:500}
+.chev{color:var(--muted);font-size:20px}
+.reason{font-size:13px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* ── Ticket ────────────────────────────────────────────── */
+.ticket{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.kv{background:var(--soft);border-radius:10px;padding:8px 10px}
+.kv b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.kv span{font-size:12px;color:var(--muted)}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:600;padding:12px;border-radius:12px;
+  background:var(--accent);color:#fff;margin-top:12px}
+@media (prefers-color-scheme: dark){.btn{color:#0f1720}}
+
+/* ── Checks list ───────────────────────────────────────── */
+.checks{list-style:none;padding:0;margin:0}
+.checks li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.checks li:first-child{border-top:0}
+.mark{width:20px;flex:none;text-align:center;font-weight:700}
+.mark.y{color:var(--buy)} .mark.n{color:var(--err)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── Step timeline ─────────────────────────────────────── */
+.steps{position:relative;margin-left:10px;padding-left:16px;border-left:2px solid var(--line)}
+.step{position:relative;margin:0 0 10px}
+.step::before{content:"";position:absolute;left:-23px;top:18px;width:12px;height:12px;border-radius:50%;
+  background:var(--code);box-shadow:0 0 0 3px var(--bg)}
+.step.ai::before{background:var(--ai)} .step.err::before{background:var(--err)}
+.step summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 14px}
+.step summary::-webkit-details-marker{display:none}
+.step details{background:var(--card);border-radius:var(--radius);box-shadow:0 0 0 1px var(--line)}
+.step details[open] summary{border-bottom:1px solid var(--line)}
+.step .t{font-weight:600;font-size:14px}
+.type{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.type.code{color:var(--code);background:var(--code-bg)} .type.ai{color:var(--ai);background:var(--ai-bg)}
+.body{padding:10px 14px 14px}
+.body details{background:none;box-shadow:none;border-radius:0}
+.body details summary{padding:8px 0;border:0!important;color:var(--accent);font-size:13px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.tabs button{border:0;background:var(--soft);color:var(--muted);font:inherit;font-size:13px;padding:6px 11px;border-radius:999px;white-space:nowrap}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.pane{display:none} .pane.on{display:block}
+.key{font-size:12px;font-family:ui-monospace,Menlo,monospace;color:var(--muted);margin:10px 0 4px}
+.key:first-child{margin-top:0}
+pre{background:var(--soft);border-radius:10px;padding:10px;font-size:12px;line-height:1.4;overflow-x:auto;
+  white-space:pre-wrap;word-break:break-word;margin:0;max-height:420px;overflow-y:auto}
+.md{font-size:14px} .md p{margin:0 0 8px} .md ul{margin:0 0 8px;padding-left:20px} .md h4{margin:10px 0 4px;font-size:14px}
+.speaker{font-weight:700;font-size:13px;margin:10px 0 2px} .speaker.Bull{color:var(--buy)} .speaker.Bear{color:var(--err)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:right;padding:4px 6px;border-top:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+.empty{text-align:center;padding:40px 10px;color:var(--muted)}
+.spin{animation:spin 1s linear infinite;display:inline-block} @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="empty">Loading…</div></div>
+
+<script>
+/* Swing Desk — reads data/index.json and data/<run>.json made by export_web.py.
+   Views:  #/            latest run (ticker cards)
+           #/run/<id>    a specific run
+           #/run/<id>/<TICKER>   one ticker, every step                       */
+const $app = document.getElementById("app");
+const cache = {};
+const ORDER = {BUY: 0, WATCH: 1, SKIP: 2, ERROR: 3, INCOMPLETE: 3};
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtDate = s => { if (!s) return ""; const d = new Date(s.length <= 10 ? s + "T00:00:00" : s);
+  return isNaN(d) ? s : d.toLocaleDateString(undefined, {weekday:"short", day:"numeric", month:"short"}); };
+const money = v => v == null ? "–" : "$" + Number(v).toLocaleString(undefined, {maximumFractionDigits: 2});
+
+/* tiny markdown: headings, bullets, bold, links */
+function md(text) {
+  const out = []; let list = false;
+  for (const raw of String(text ?? "").split("\n")) {
+    let l = esc(raw).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    if (/^\s*[-*]\s+/.test(raw)) { if (!list) { out.push("<ul>"); list = true; } out.push("<li>" + l.replace(/^\s*[-*]\s+/, "") + "</li>"); continue; }
+    if (list) { out.push("</ul>"); list = false; }
+    if (/^#{1,6}\s/.test(raw)) out.push("<h4>" + l.replace(/^#{1,6}\s/, "") + "</h4>");
+    else if (raw.trim()) out.push("<p>" + l + "</p>");
+  }
+  if (list) out.push("</ul>");
+  return '<div class="md">' + out.join("") + "</div>";
+}
+
+async function getJSON(path) {
+  if (cache[path]) return cache[path];
+  const r = await fetch(path + "?t=" + Date.now());
+  if (!r.ok) throw new Error(path + " → " + r.status);
+  return (cache[path] = await r.json());
+}
+
+/* ── Views ─────────────────────────────────────────────── */
+async function home(runId) {
+  const runs = await getJSON("data/index.json");
+  if (!runs.length) return $app.innerHTML = topBar("Swing Desk") + '<div class="empty">No runs yet.<br>They appear here after the Saturday run.</div>';
+  const meta = runs.find(r => r.id === runId) || runs[0];
+  const run = await getJSON(`data/${meta.id}.json`);
+  const mkt = marketOf(run.results[0]);
+  const results = [...run.results].sort((a, b) => (ORDER[a.action] ?? 9) - (ORDER[b.action] ?? 9));
+  const counts = results.reduce((m, r) => (m[r.action] = (m[r.action] || 0) + 1, m), {});
+
+  let h = topBar("Swing Desk", runId ? "#/" : null);
+  h += `<div class="sub">Close of ${fmtDate(meta.as_of)} · ${esc(meta.strategy)}</div>`;
+  if (mkt) h += `<div class="card row"><div class="grow"><b>Market filter</b><div class="small muted num">${esc(mkt.detail)}</div></div>
+           <span class="badge ${mkt.ok ? "BUY" : "ERROR"}">${mkt.ok ? "GREEN" : "RED"}</span></div>`;
+  h += `<div class="row" style="gap:6px;margin:4px 2px 10px;flex-wrap:wrap">` +
+       ["BUY","WATCH","SKIP","ERROR"].filter(k => counts[k]).map(k => `<span class="badge ${k}">${counts[k]} ${k}</span>`).join("") + `</div>`;
+  for (const r of results) {
+    const p = r.plan;
+    const line = r.action === "BUY" && p ? `Buy-stop ${p.entry} · stop ${p.stop} · ${p.shares} sh`
+               : (r.error ? "Error: " + r.error.split("\n").filter(Boolean).pop() : (r.reasons[0] || ""));
+    h += `<a class="card tap" href="#/run/${meta.id}/${r.ticker}"><div class="row">
+            <div class="grow"><div class="row"><span class="tick">${esc(r.ticker)}</span><span class="chip">rules ${esc(r.checks)}</span></div>
+            <div class="reason">${esc(line)}</div></div>
+            <span class="badge ${r.action}">${r.action}</span><span class="chev">›</span></div></a>`;
+  }
+  h += `<div class="h2">Earlier runs</div>`;
+  for (const r of runs) {
+    const b = r.tickers.filter(t => t.action === "BUY").length, w = r.tickers.filter(t => t.action === "WATCH").length;
+    h += `<a class="card tap row" href="#/run/${r.id}"><div class="grow"><b>${fmtDate(r.as_of)}</b>
+            <div class="small muted">${r.tickers.length} tickers · ran ${esc((r.started||"").slice(5,16).replace("T"," "))} · ${esc(r.model)}</div></div>
+            ${b ? `<span class="badge BUY">${b}</span>` : ""}${w ? `<span class="badge WATCH">${w}</span>` : ""}
+            ${r.id === meta.id ? '<span class="chip">viewing</span>' : '<span class="chev">›</span>'}</a>`;
+  }
+  $app.innerHTML = h;
+}
+
+function marketOf(result) {
+  const s = result && result.steps.find(s => s.name === "market_regime");
+  return s && s.writes.market;
+}
+
+async function ticker(runId, tk) {
+  const run = await getJSON(`data/${runId}.json`);
+  const r = run.results.find(x => x.ticker === tk);
+  if (!r) return $app.innerHTML = topBar(tk, `#/run/${runId}`) + '<div class="empty">Not found</div>';
+  const sig = (r.steps.find(s => s.name === "strategy_rules") || {}).writes?.signal;
+  const totalAI = r.steps.reduce((n, s) => n + s.llm_calls.length, 0);
+
+  let h = topBar(tk, `#/run/${runId}`);
+  h += `<div class="sub">Close of ${fmtDate(run.as_of)} · ${esc(run.strategy)}</div>`;
+  h += `<div class="card"><div class="row"><div class="grow tick">Decision</div><span class="badge ${r.action}">${r.action}</span></div>`;
+  if (r.action === "BUY" && r.plan) {
+    const p = r.plan;
+    h += `<div class="ticket">
+      <div class="kv"><span>${p.entry_type === "buy_stop" ? "Buy-stop" : "Buy at open ~"}</span><b>${p.entry}</b></div>
+      <div class="kv"><span>Stop-loss</span><b>${p.stop}</b></div>
+      <div class="kv"><span>Shares</span><b>${p.shares}</b></div>
+      <div class="kv"><span>Position · risk</span><b>${money(p.position_usd)} · ${money(p.actual_risk_usd)}</b></div>
+      <div class="kv"><span>+1R → breakeven</span><b>${p.target_1R}</b></div>
+      <div class="kv"><span>+2R</span><b>${p.target_2R}</b></div></div>`;
+  }
+  if (r.reasons.length) h += `<ul class="small" style="margin:12px 0 0;padding-left:18px">${r.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  if (r.chart) h += `<a class="btn" href="${esc(r.chart)}" target="_blank" rel="noopener">Open chart in TradingView</a>`;
+  h += `</div>`;
+
+  if (sig) h += `<div class="h2">Strategy rules · ${sig.checks_passed}/${sig.checks_total}</div><div class="card"><ul class="checks">` +
+    sig.checks.map(c => `<li><span class="mark ${c.passed ? "y" : "n"}">${c.passed ? "✓" : "✗"}</span>
+       <div class="grow"><b>${esc(c.name)}</b><div class="small muted">${esc(c.rule)}</div></div>
+       <span class="small num">${esc(c.value)}</span></li>`).join("") + `</ul></div>`;
+
+  h += `<div class="h2">Flow · ${r.steps.length} steps · ${totalAI} AI calls</div><div class="steps">`;
+  r.steps.forEach((s, i) => h += stepCard(s, i));
+  h += `</div>`;
+  $app.innerHTML = h;
+  window.scrollTo(0, 0);
+}
+
+function stepCard(s, i) {
+  const ai = s.llm_calls.length > 0, err = s.status !== "ok";
+  const panes = [["Output", renderObj(s.writes)], ["Input", renderObj(s.reads)]];
+  if (ai) panes.push(["AI", s.llm_calls.map(c =>
+      `<div class="key">${esc(c.model)} · ${c.seconds}s</div>${md(c.response)}
+       <details><summary>Show prompt sent ›</summary><pre>${esc(c.prompt)}</pre></details>`).join("")]);
+  if (err) panes.unshift(["Error", `<pre>${esc(s.error)}</pre>`]);
+  return `<div class="step ${ai ? "ai" : ""} ${err ? "err" : ""}"><details>
+    <summary><span class="small muted num">${String(s.num).padStart(2, "0")}</span>
+      <span class="grow t">${esc(s.title)}</span>
+      <span class="type ${ai ? "ai" : "code"}">${ai ? "AI" : "CODE"}</span>
+      <span class="small muted num">${s.duration_s}s</span></summary>
+    <div class="body">${s.doc ? `<div class="small muted" style="margin-bottom:8px">${esc(s.doc)}</div>` : ""}
+      <div class="tabs">${panes.map((p, j) => `<button data-i="${j}" class="${j ? "" : "on"}">${p[0]}</button>`).join("")}</div>
+      ${panes.map((p, j) => `<div class="pane ${j ? "" : "on"}">${p[1] || '<div class="small muted">(nothing)</div>'}</div>`).join("")}
+    </div></details></div>`;
+}
+
+function renderObj(obj) {
+  return Object.entries(obj || {}).map(([k, v]) => `<div class="key">${esc(k)}</div>` + renderVal(k, v)).join("");
+}
+
+function renderVal(k, v) {
+  if (v && v._type === "DataFrame") {
+    const rows = Object.entries(v.tail || {}); const cols = rows.length ? Object.keys(rows[0][1]) : [];
+    const show = cols.slice(0, 6);
+    return `<div class="small muted">${v.rows} rows · ${esc(v.first_date)} → ${esc(v.last_date)} · last 5</div>
+      <div class="scroll"><table class="tbl"><tr><th>Date</th>${show.map(c => `<th>${esc(c)}</th>`).join("")}</tr>` +
+      rows.map(([d, r]) => `<tr><td>${esc(d.slice(5, 10))}</td>${show.map(c => `<td>${fmtNum(r[c])}</td>`).join("")}</tr>`).join("") + `</table></div>`;
+  }
+  if (k === "reports" && v && typeof v === "object") return Object.entries(v).map(([n, t]) => `<div class="speaker">${esc(n)}</div>${md(t)}`).join("");
+  if (k === "debate" && Array.isArray(v)) return v.map(d => `<div class="speaker ${esc(d.speaker)}">${esc(d.speaker)}</div>${md(d.text)}`).join("") || '<div class="small muted">(empty)</div>';
+  if (k === "decision" && v) return md(v.summary);
+  if (k === "research" && v) return `<span class="badge ${v.verdict === "TAKE" ? "BUY" : v.verdict === "WAIT" ? "WATCH" : "SKIP"}">${esc(v.verdict)}</span>${md(v.text)}`;
+  if (k === "risk" && v) return `<ul class="checks">${v.hard_checks.map(c => `<li><span class="mark ${c.passed ? "y" : "n"}">${c.passed ? "✓" : "✗"}</span><div class="grow"><b>${esc(c.name)}</b><div class="small muted">${esc(c.detail)}</div></div></li>`).join("")}</ul>
+       <div class="speaker">Reviewer ${v.veto ? "· VETO" : ""}</div>${md(v.review)}`;
+  if (k === "strategy" && v) return `<pre>${esc(v.description)}</pre>`;
+  if (typeof v === "string") return v.length > 120 ? md(v) : `<div>${esc(v)}</div>`;
+  return `<pre>${esc(JSON.stringify(v, null, 1))}</pre>`;
+}
+const fmtNum = x => typeof x === "number" ? (Math.abs(x) >= 1e5 ? x.toLocaleString(undefined, {maximumFractionDigits: 0}) : +x.toFixed(2)) : esc(x);
+
+function topBar(title, backHref) {
+  return `<div class="top">${backHref ? `<a class="iconbtn back tap" href="${backHref}">‹ Back</a>` : ""}
+    <h1>${esc(title)}</h1><button class="iconbtn" id="refresh" aria-label="Refresh">↻</button></div>`;
+}
+
+/* ── Router & events ───────────────────────────────────── */
+async function route() {
+  const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  try {
+    if (parts[0] === "run" && parts[2]) await ticker(parts[1], decodeURIComponent(parts[2]));
+    else await home(parts[0] === "run" ? parts[1] : null);
+  } catch (e) {
+    $app.innerHTML = topBar("Swing Desk") + `<div class="empty">Couldn't load data.<br><span class="small">${esc(e.message)}</span></div>`;
+  }
+}
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tabs button");
+  if (tab) {
+    const body = tab.closest(".body"), i = +tab.dataset.i;
+    body.querySelectorAll(".tabs button").forEach((b, j) => b.classList.toggle("on", j === i));
+    body.querySelectorAll(":scope > .pane").forEach((p, j) => p.classList.toggle("on", j === i));
+  }
+  if (e.target.closest("#refresh")) {
+    for (const k in cache) delete cache[k];
+    e.target.closest("#refresh").innerHTML = '<span class="spin">↻</span>';
+    route();
+  }
+});
+addEventListener("hashchange", route);
+route();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────
+# swing-agents settings. Edit this file, not the code, for
+# day-to-day changes. Every key is read in swing_agents/config.py
+# ─────────────────────────────────────────────────────────────
+
+# Which strategy file in strategies/ the flow uses.
+# Swap by changing the name (file name without .py).
+strategy: pullback_v2
+
+# Optional overrides for the strategy's default PARAMS.
+# Leave empty to use the defaults written in the strategy file.
+strategy_params:
+  rsi_max: 50
+  # near_pct: 0.02
+  # atr_stop_mult: 2.0
+
+account:
+  capital_sgd: 800
+  usd_per_sgd: 0.76          # update now and then
+  risk_pct: 1.5              # % of account risked per trade
+  max_position_pct: 40       # max % of account in one position
+  max_positions: 3
+  max_per_sector: 1
+  allow_fractional: true     # Syfe supports fractional US shares
+  earnings_blackout_days: 14 # skip if earnings within this many days
+  drawdown_pause_pct: 15     # stop new trades past this drawdown
+
+# Open positions live here so the risk step can count them.
+portfolio_file: portfolio.yaml
+
+data:
+  source: yfinance           # yfinance | csv   (csv reads data/csv/<TICKER>.csv)
+  lookback_days: 600         # calendar days of history to load
+  market_symbol: SPY         # market filter symbol
+  news_items: 8              # headlines passed to the news analyst
+
+llm:
+  # provider:model, passed to LangChain's init_chat_model.
+  # Examples: anthropic:claude-sonnet-4-5, openai:gpt-4o-mini, ollama:llama3.1
+  # Set to "offline" to run the whole flow with no API key (stub answers).
+  quick_model: anthropic:claude-haiku-4-5    # analysts, debaters (cheap, fast)
+  deep_model: anthropic:claude-sonnet-4-5    # research manager, risk reviewer
+  temperature: 0.2
+  max_tokens: 1200
+
+flow:
+  # Analysts to run. Remove one to skip it. (No social/sentiment by design.)
+  analysts: [technical, fundamentals, news]
+  debate_rounds: 1            # bull/bear exchanges
+  # If the strategy rules give no signal, jump straight to the final step
+  # and don't spend LLM calls. Set false to still get the analysts' views.
+  skip_llm_if_no_signal: true
+  # rules_only: true          # skip every AI step (set automatically when no API key)
+
+knowledge:
+  # Markdown files from knowledge/ that every agent reads as context.
+  files: [playbook.md, lessons.md]
+
+output:
+  runs_dir: runs

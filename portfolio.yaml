@@ -1,0 +1,14 @@
+# Your open (paper) positions. The risk step reads this to enforce
+# max positions and max-per-sector. Update it after each fill/exit.
+#
+# Example entry:
+# - ticker: MSFT
+#   sector: Technology
+#   entry: 530.10
+#   stop: 501.10
+#   shares: 0.31
+#   opened: 2026-11-17
+
+peak_equity_sgd: 800   # highest account value so far (for drawdown)
+equity_sgd: 800        # current account value
+positions: []

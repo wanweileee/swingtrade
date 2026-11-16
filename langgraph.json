@@ -1,0 +1,5 @@
+{
+  "dependencies": ["."],
+  "graphs": { "swing_flow": "./swing_agents/graph.py:graph" },
+  "env": ".env"
+}
